@@ -10,5 +10,11 @@ public class AppUser{
     public required byte[] PasswordHash {get; set;}
     public required byte[] PasswordSalt {get; set;}
 
+    public required string Name {get; set;}
+
+    public required string Surname {get; set;}
+
+    public required string Email {get; set;}
+
 
 }

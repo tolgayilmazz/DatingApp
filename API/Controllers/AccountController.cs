@@ -22,7 +22,11 @@ public class AccountController(DataContext context, ITokenService tokenService):
         {
             UserName = registerDto.Username.ToLower(),
             PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-            PasswordSalt = hmac.Key
+            PasswordSalt = hmac.Key,
+
+            Name = registerDto.Name,
+            Surname = registerDto.Surname,
+            Email = registerDto.Email
         };
 
         context.Users.Add(user);
@@ -30,7 +34,8 @@ public class AccountController(DataContext context, ITokenService tokenService):
 
         return new UserDto{
             Username  = user.UserName,
-            Token = tokenService.CreateToken(user)
+            Token = tokenService.CreateToken(user),
+            Name = user.Name
         };
     }
 
@@ -51,7 +56,8 @@ public class AccountController(DataContext context, ITokenService tokenService):
 
         return new UserDto{
             Username = user.UserName,
-            Token = tokenService.CreateToken(user)
+            Token = tokenService.CreateToken(user),
+            Name = user.Name
         };
     }
 
