@@ -2,38 +2,37 @@
 
 #nullable disable
 
-namespace API.Data.Migrations
+namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class UserEntityUpdated : Migration
+    public partial class FinishedRoles : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<byte[]>(
-                name: "PasswordHash",
+            migrationBuilder.AddColumn<int>(
+                name: "ClubId",
                 table: "Users",
-                type: "BLOB",
-                nullable: false,
-                defaultValue: new byte[0]);
+                type: "integer",
+                nullable: true);
 
-            migrationBuilder.AddColumn<byte[]>(
-                name: "PasswordSalt",
+            migrationBuilder.AddColumn<string>(
+                name: "Role",
                 table: "Users",
-                type: "BLOB",
+                type: "text",
                 nullable: false,
-                defaultValue: new byte[0]);
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "PasswordHash",
+                name: "ClubId",
                 table: "Users");
 
             migrationBuilder.DropColumn(
-                name: "PasswordSalt",
+                name: "Role",
                 table: "Users");
         }
     }

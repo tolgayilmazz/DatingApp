@@ -9,6 +9,10 @@ import { authGuard } from './_guards/auth.guard';
 import { TestErrorsComponent } from './errors/test-errors/test-errors.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
+import { SuperAdminComponent } from './super-admin/super-admin.component';
+import { superAdminGuard } from './_guards/super-admin.guard';
+import { AdminComponent } from './admin/admin.component';
+import { adminGuard } from './_guards/admin.guard';
 
 export const routes: Routes = [
     {path: '', component: HomeComponent},
@@ -20,11 +24,11 @@ export const routes: Routes = [
             {path: 'members', component: MemberListComponent},
             {path: 'members/details', component: MemberDetailComponent},
             {path: 'events', component: EventsComponent, canActivate: [authGuard]},
-            {path: 'messages', component: MessagesComponent}
+            {path: 'messages', component: MessagesComponent},
         ]
     },
-
-
+    {path: 'super-admin', component: SuperAdminComponent, canActivate: [superAdminGuard]},
+    {path: 'admin', component: AdminComponent, canActivate: [adminGuard]},
     {path: 'errors', component: TestErrorsComponent},
     {path: 'not-found', component: NotFoundComponent},
     {path: 'server-error', component: ServerErrorComponent},

@@ -1,19 +1,25 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse, HttpEvent } from '@angular/common/http';
 import { NavigationExtras, Router } from '@angular/router';
-import { inject, Inject } from '@angular/core';
+import { inject, Inject, model } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { catchError } from 'rxjs';
+import { AccountService } from '../_services/account.service';
+import { catchError, throwError, switchMap, of, Observable, EMPTY } from 'rxjs';
+import { User } from '../_models/user';
 
-export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
 
   const router = inject(Router);
   const toastr = inject(ToastrService);
+  const accountService = inject(AccountService);
+
+  let isRefreshing = false;
 
   return next(req).pipe(
-    catchError(error => {
+    catchError((error: HttpErrorResponse) => {
       if(error){
         switch(error.status) {
           case 400:
+            
             if(error.error.errors){
               const modalStateErrors = [];
               for (const key in error.error.errors){
@@ -22,15 +28,51 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 }
               }
               throw modalStateErrors.flat();
-              
             }
             else{
-              toastr.error(error.error, error.status);
+              toastr.error(error.error, error.status.toString());
             }
             break;
           case 401:
-            toastr.error('Unauthorised', error.status);
+            if(!isRefreshing){
+              isRefreshing = true;
+
+              return accountService.refreshToken().pipe(
+                switchMap((newUser: User | null) => {
+                  isRefreshing = false;
+                  if(newUser?.token) {
+                    const clonedRequest = req.clone({
+                      setHeaders: {
+                        Authorization: `Bearer ${newUser.token}` 
+                      }
+                    });
+                    return next(clonedRequest);
+                  }
+                  else{
+                    toastr.error('Session expired!!! Please log in again');
+                    accountService.logout();
+                    router.navigateByUrl('/login');
+                    return EMPTY;
+                  }
+                }),
+                catchError(refreshError => {
+                  isRefreshing = false;
+                  toastr.error('Session expired. Please log in again.')
+                  accountService.logout();
+                  router.navigateByUrl('/login');
+                  return throwError(() => refreshError);
+                })
+
+              );
+
+            }
+            else{
+              toastr.error('Unauthorised', error.status.toString());
+              return EMPTY;
+            }
+            
             break;
+
           case 404:
             router.navigateByUrl('/not-found');
             break;
@@ -43,7 +85,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
         }
       }
-      throw error;
+      return throwError(() => error);
     })
   )
 };
