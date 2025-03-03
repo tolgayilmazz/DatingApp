@@ -3,6 +3,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using API.Data;
+using API.DTOs;
+using API.Services;
 using API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +43,7 @@ public class AccountController(DataContext context, ITokenService tokenService):
 
         return new UserDto{
             Username  = user.UserName,
-            Token = tokenService.CreateToken(user),
+            Token = await tokenService.CreateToken(user),
             RefreshToken = user.RefreshToken,
             Name = user.Name,
             Role = user.Role
@@ -72,7 +74,7 @@ public class AccountController(DataContext context, ITokenService tokenService):
 
         return new UserDto{
             Username = user.UserName,
-            Token = tokenService.CreateToken(user),
+            Token = await tokenService.CreateToken(user),
             RefreshToken = user.RefreshToken,
             Name = user.Name,
             Role = user.Role
@@ -101,7 +103,7 @@ public class AccountController(DataContext context, ITokenService tokenService):
 
         return new UserDto{
             Username = user.UserName,
-            Token = tokenService.CreateToken(user),
+            Token = await tokenService.CreateToken(user),
             RefreshToken = user.RefreshToken,
             Name = user.Name,
             Role = user.Role
@@ -124,7 +126,7 @@ public class AccountController(DataContext context, ITokenService tokenService):
         }
         
 
-        var newAccessToken = tokenService.CreateToken(user);
+        var newAccessToken = await tokenService.CreateToken(user);
         var newRefreshToken = tokenService.CreateRefreshToken();
 
         user.RefreshToken = newRefreshToken;
@@ -139,6 +141,34 @@ public class AccountController(DataContext context, ITokenService tokenService):
             Name = user.Name,
             Role = user.Role
         };
+    }
+
+    [HttpPut("update-role")]
+    public async Task<IActionResult> UpdateUserRole([FromBody] UpdateUserRoleDto dto, [FromServices] AdminService adminService){
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId);
+
+        if (user == null) return BadRequest("User not found!");
+
+        if(user.Role == "SuperAdmin") return BadRequest("Cannot change the role of a SuperAdmin!");
+
+        if(user.Role == dto.NewRole) return BadRequest("User already has this role!");
+
+        user.Role = dto.NewRole;
+        await context.SaveChangesAsync();
+
+        if (dto.NewRole == "Admin"){
+            await adminService.EnsureAdminExists(dto.UserId);
+        }
+        else{
+            var existingAdmin = await context.Admins.FirstOrDefaultAsync(a => a.UserID == dto.UserId);
+            if(existingAdmin != null){
+                context.Admins.Remove(existingAdmin);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        return Ok("User role updated successfully!");
+
     }
 
     private async Task<bool> UserExists(string username){

@@ -29,7 +29,7 @@ namespace API.Controllers
                 return Ok("Access granted to SuperAdmin for all clubs.");
             }
             if(role == "Admin" && !string.IsNullOrEmpty(ClubId)){
-                return Ok($"Access granted to to Admin. ClubId: {ClubId}");
+                return Ok($"Access granted to Admin. Club Id: {ClubId}");
             }
             return Forbid("Access denied.");
         }

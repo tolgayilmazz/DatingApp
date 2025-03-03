@@ -22,7 +22,4 @@ public class AppUser{
     public required DateTime RefreshTokenExpiry {get; set;}
 
     public required string Role {get;set;} = "User";
-
-    public int? ClubId {get; set;}
-
 }

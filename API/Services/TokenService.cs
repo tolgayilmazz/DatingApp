@@ -4,18 +4,23 @@ using System.Security.Cryptography;
 using System.Text;
 using API;
 using API.Entities;
+using API.Data;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+
 
 public class TokenService: ITokenService
 {
     private readonly IConfiguration _config;
+    private readonly DataContext _context;
 
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, DataContext context)
     {
         _config = config;
+        _context = context;
     }
 
-    public string CreateToken(AppUser user)
+    public async Task<string> CreateToken(AppUser user)
     {
         var tokenKey = _config["TokenKey"] ?? throw new Exception("Cannot access tokenKey from appsettings");
         if (tokenKey.Length < 64) throw new Exception ("Your tokenKey needs to be longer");
@@ -26,8 +31,15 @@ public class TokenService: ITokenService
             new(ClaimTypes.Role, user.Role ?? "User")
         };
 
-        if(user.ClubId.HasValue && user.Role == "Admin"){
-            claims.Add(new Claim("ClubId", user.ClubId.Value.ToString()));
+        if(user.Role == "Admin"){
+            var admin = await _context.Admins
+                .Include(a => a.AdminClubs)
+                .ThenInclude(ac => ac.Club)
+                .FirstOrDefaultAsync(a => a.UserID == user.Id);
+            if(admin != null && admin.AdminClubs != null){
+                var clubIds = admin.AdminClubs.Select(ac => ac.ClubId.ToString()).ToList();
+                claims.Add(new Claim("ClubIds", string.Join(",", clubIds)));
+            }
         }
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
