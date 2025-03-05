@@ -9,48 +9,14 @@ using API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace API.Controllers;
 
 public class AccountController(DataContext context, ITokenService tokenService): BaseApiController {
-    [HttpPost("register-admin")] //acount/register
-    [Authorize(Roles = "SuperAdmin")]
+   
 
-    public async Task<ActionResult<UserDto>> RegisterAdmin(RegisterDto registerDto){
-
-        if (await UserExists(registerDto.Username)) return BadRequest("Username already exists!");
-
-        if(registerDto.Role != "Admin" && registerDto.Role != "User" && registerDto.Role != "SuperAdmin") return BadRequest("Invalid role!");
-        
-        using var hmac = new HMACSHA512();
-
-        var user = new AppUser
-        {
-            UserName = registerDto.Username.ToLower(),
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-            PasswordSalt = hmac.Key,
-            Name = registerDto.Name,
-            Surname = registerDto.Surname,
-            Email = registerDto.Email,
-            Role = registerDto.Role,
-            RefreshToken = tokenService.CreateRefreshToken(),
-            RefreshTokenExpiry = DateTime.UtcNow.AddDays(1)
-            
-        };
-
-        context.Users.Add(user);
-        await context.SaveChangesAsync();
-
-        return new UserDto{
-            Username  = user.UserName,
-            Token = await tokenService.CreateToken(user),
-            RefreshToken = user.RefreshToken,
-            Name = user.Name,
-            Role = user.Role
-        };
-    }
-
-    [HttpPost("register-user")]
+    [HttpPost("register")]
     public async Task<ActionResult<UserDto>> RegisterUser(RegisterDto registerDto){
         if (await UserExists(registerDto.Username)){
             return BadRequest("Username already exists!");
@@ -64,7 +30,7 @@ public class AccountController(DataContext context, ITokenService tokenService):
             Name = registerDto.Name,
             Surname = registerDto.Surname,
             Email = registerDto.Email,
-            Role = "User", 
+            Role = registerDto.Role ?? "User", 
             RefreshToken = tokenService.CreateRefreshToken(),
             RefreshTokenExpiry = DateTime.UtcNow.AddDays(1)
         };
@@ -127,23 +93,26 @@ public class AccountController(DataContext context, ITokenService tokenService):
         
 
         var newAccessToken = await tokenService.CreateToken(user);
-        var newRefreshToken = tokenService.CreateRefreshToken();
 
-        user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+        if(user.RefreshTokenExpiry.Subtract(DateTime.UtcNow).TotalMinutes < 30){
+            var newRefreshToken = tokenService.CreateRefreshToken();
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+        }
 
         await context.SaveChangesAsync();
 
         return new UserDto{
             Username = user.UserName,
             Token = newAccessToken,
-            RefreshToken = newRefreshToken,
+            RefreshToken = user.RefreshToken,
             Name = user.Name,
             Role = user.Role
         };
     }
 
     [HttpPut("update-role")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> UpdateUserRole([FromBody] UpdateUserRoleDto dto, [FromServices] AdminService adminService){
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId);
 
@@ -157,7 +126,14 @@ public class AccountController(DataContext context, ITokenService tokenService):
         await context.SaveChangesAsync();
 
         if (dto.NewRole == "Admin"){
-            await adminService.EnsureAdminExists(dto.UserId);
+            try{
+                await adminService.EnsureAdminExists(dto.UserId);
+            }
+            catch(Exception ex){
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, "An error occurred while trying to create an Admin record.");
+            }
+            
         }
         else{
             var existingAdmin = await context.Admins.FirstOrDefaultAsync(a => a.UserID == dto.UserId);
@@ -167,8 +143,21 @@ public class AccountController(DataContext context, ITokenService tokenService):
             }
         }
 
-        return Ok("User role updated successfully!");
+        var loggedInUserClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if(!int.TryParse(loggedInUserClaim, out int loggedInUserId)){
+            Console.WriteLine($"Error: Could not parse logged-in user ID. Claim value: {loggedInUserClaim}");
+            return Unauthorized("Invalid user ID in token.");
+        }
 
+        if (user.Id == loggedInUserId){
+            var newAccessToken = await tokenService.CreateToken(user);
+            return Ok(new{
+                newAccessToken,
+                message = "Role updated successfully!"
+            });
+        }
+
+        return Ok(new{message = "Role updated successfully!"});
     }
 
     private async Task<bool> UserExists(string username){

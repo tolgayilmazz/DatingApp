@@ -13,6 +13,7 @@ import { SuperAdminComponent } from './super-admin/super-admin.component';
 import { superAdminGuard } from './_guards/super-admin.guard';
 import { AdminComponent } from './admin/admin.component';
 import { adminGuard } from './_guards/admin.guard';
+import { AdminsAndClubsComponent } from './super-admin/admins-and-clubs/admins-and-clubs.component';
 
 export const routes: Routes = [
     {path: '', component: HomeComponent},
@@ -32,5 +33,6 @@ export const routes: Routes = [
     {path: 'errors', component: TestErrorsComponent},
     {path: 'not-found', component: NotFoundComponent},
     {path: 'server-error', component: ServerErrorComponent},
+    {path: 'admins-clubs', component: AdminsAndClubsComponent, canActivate: [superAdminGuard]},
     {path: '**', component: HomeComponent, pathMatch: 'full'},
 ];

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using API;
 using API.Entities;
 using API.Data;
@@ -27,7 +28,7 @@ public class TokenService: ITokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey));
 
         var claims = new List<Claim>{
-            new(ClaimTypes.NameIdentifier, user.UserName ?? "UnknownUser"),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Role, user.Role ?? "User")
         };
 
@@ -37,8 +38,9 @@ public class TokenService: ITokenService
                 .ThenInclude(ac => ac.Club)
                 .FirstOrDefaultAsync(a => a.UserID == user.Id);
             if(admin != null && admin.AdminClubs != null){
-                var clubIds = admin.AdminClubs.Select(ac => ac.ClubId.ToString()).ToList();
-                claims.Add(new Claim("ClubIds", string.Join(",", clubIds)));
+                var clubIds = admin.AdminClubs.Select(ac => ac.ClubId).ToList();
+                var clubIdsJson = JsonSerializer.Serialize(clubIds, new JsonSerializerOptions{WriteIndented = false});
+                claims.Add(new Claim("ClubIds", clubIdsJson));
             }
         }
 

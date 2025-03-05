@@ -8,6 +8,7 @@ using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AdminService = API.Services.AdminService;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace API.Controllers;
@@ -23,6 +24,7 @@ public class AdminController: BaseApiController{
    
 
     [HttpGet("admins-with-users")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<ActionResult<List<AdminWithUserDto>>> GetAdminsWithUsers()
     {
         var result = await _adminService.GetAdminsWithUsers();
@@ -31,6 +33,7 @@ public class AdminController: BaseApiController{
 
 
     [HttpGet("admins-with-clubs")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<ActionResult<List<AdminWithClubDto>>> GetAdminsWithClubs()
     {
         var result = await _adminService.GetAdminsWithClubs();
@@ -38,6 +41,7 @@ public class AdminController: BaseApiController{
     }
 
     [HttpGet("clubs-with-admins")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<ActionResult<List<ClubWithAdminDto>>> GetClubsWithAdmins()
     {
         var result = await _adminService.GetClubsWithAdmins();
@@ -45,6 +49,7 @@ public class AdminController: BaseApiController{
     }
 
     [HttpPost("add-admin-to-clubs")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> AddAdminToClubs([FromBody] AddAdminDto dto)
     {
         var result = await _adminService.AddAdminToClubs(dto);
@@ -56,6 +61,7 @@ public class AdminController: BaseApiController{
 
 
     [HttpPut("update-admin-clubs")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> UpdateAdminClubs([FromBody] UpdateAdminDto dto)
     {
         var result = await _adminService.UpdateAdminClubs(dto);
@@ -67,6 +73,7 @@ public class AdminController: BaseApiController{
    
 
     [HttpDelete("delete-admin/{adminId}")]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> DeleteAdmin([FromBody] DeleteAdminDto dto)
     {
         var result = await _adminService.DeleteAdmin(dto);

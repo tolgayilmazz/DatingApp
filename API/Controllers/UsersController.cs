@@ -19,7 +19,7 @@ public class UsersController(DataContext context) : BaseApiController{
 
         return users;
     }
-    [Authorize]
+    [Authorize(Policy = "RequireSuperAdminRole")]
     [HttpGet("{id:int}")]
 
     public async Task<ActionResult<AppUser>> GetUser(int id){

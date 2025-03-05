@@ -6,6 +6,7 @@ import { AccountService } from '../_services/account.service';
 import { catchError, throwError, switchMap, of, Observable, EMPTY } from 'rxjs';
 import { User } from '../_models/user';
 
+
 export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
 
   const router = inject(Router);

@@ -1,0 +1,57 @@
+<app-nav-bar></app-nav-bar>
+<div class="container">
+    <h3>Admins and Clubs</h3>
+  
+    <!-- Assign Admin to Club -->
+    <div class="assign-section">
+      <label for="adminSelect">Select Admin:</label>
+      <select id="adminSelect" [(ngModel)]="selectedAdminId">
+        <option *ngFor="let admin of adminsWithClubs" [value]="admin.id">
+          {{ admin.username }}
+        </option>
+      </select>
+  
+      <label for="clubSelect">Select Club:</label>
+      <select id="clubSelect" [(ngModel)]="selectedClubId">
+        <option *ngFor="let club of clubsWithAdmins" [value]="club.id">
+          {{ club.name }}
+        </option>
+      </select>
+  
+      
+    </div>
+  
+    <!-- Admins and their assigned Clubs -->
+    <h4>Admins with their Clubs</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Admin ID</th>
+          <th>Admin Name</th>
+          <th>Assigned Clubs</th>
+          <th>Update Clubs</th>
+          <th>Delete Admin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let admin of adminsWithClubs">
+          <td>{{ admin.id }}</td>
+          <td>{{ admin.username }}</td>
+          <td>
+            <span *ngFor="let club of admin.clubs">{{ club.name }} </span>
+          </td>
+          <td>
+            <select multiple [(ngModel)]="admin.selectedClubs">
+              <option *ngFor="let club of clubsWithAdmins" [value]="club.id">
+                {{ club.name }}
+              </option>
+            </select>
+            <button (click)="updateAdminClubs(admin.id, admin.selectedClubs)">Update</button>
+          </td>
+          <td>
+            <button (click)="deleteAdmin(admin.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

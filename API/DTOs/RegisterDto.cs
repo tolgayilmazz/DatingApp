@@ -22,8 +22,6 @@ public class RegisterDto{
     [EmailAddress]
     public required string Email {get; set;}
 
-    [Required]
-
-    public required string Role {get;set;} = "User";
+    public string? Role {get;set;}
 
 }
