@@ -17,7 +17,16 @@ public static class ApplicationServiceExtensions
             opt.UseNpgsql(config.GetConnectionString("DefaultConnection"));
         });
 
-        services.AddCors();
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAngularApp", builder =>
+            {
+                builder.WithOrigins("http://localhost:4200", "https://localhost:4200") 
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials(); 
+            });
+        });
         services.AddScoped<ITokenService, TokenService>();
 
         return services;

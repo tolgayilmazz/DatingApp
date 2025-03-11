@@ -43,11 +43,11 @@ export class SuperAdminComponent implements OnInit{
         if(newUser?.token){
           localStorage.setItem('token', newUser.token);
         }
-        console.log("wtf")
+        
         setTimeout(() => {
           this.loadAdminsWithClubs();
           this.loadClubsWithAdmins();
-          console.log("wtffff")
+          
         }
         , 1000);
       },
@@ -139,15 +139,7 @@ export class SuperAdminComponent implements OnInit{
     });
   }
 
-  deleteAdmin(adminId: number): void{
-    if(confirm('Are you sure you want to delete this admin?')){
-      this.superAdminService.deleteAdmin(adminId).subscribe(() => {
-        this.loadAdminsWithClubs();
-        this.loadUsers();
-        this.toastr.success('Admin deleted successfully');
-      });
-    }
-  }
+  
 
 
 

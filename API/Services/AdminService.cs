@@ -137,17 +137,16 @@ namespace API.Services{
 
         public async Task<string> DeleteAdmin(DeleteAdminDto dto)
         {
-            var admin = await _context.Admins.
-                Include(a => a.AdminClubs)
-                .FirstOrDefaultAsync(a => a.AdminId == dto.AdminId);
+            var adminClubs = await _context.AdminClubs
+                .Where(ac => ac.AdminId == dto.AdminId)
+                .ToListAsync();
 
-            if(admin == null) return ("Admin not found");
+            if (!adminClubs.Any()) return ("No assigned clubs found for this admin");
 
-            _context.AdminClubs.RemoveRange(admin.AdminClubs);
-            _context.Admins.Remove(admin);
+            _context.AdminClubs.RemoveRange(adminClubs);
             await _context.SaveChangesAsync();
 
-            return ("Admin and related clubs deleted successfully");
+            return ("Admin club relation deleted succesfully!");
         }
 
         public async Task<string> EnsureAdminExists(int userId){

@@ -1,57 +1,146 @@
 <app-nav-bar></app-nav-bar>
+<hr class="mt-5 mb-3">
 <div class="container">
-    <h3>Admins and Clubs</h3>
+   
   
-    <!-- Assign Admin to Club -->
-    <div class="assign-section">
-      <label for="adminSelect">Select Admin:</label>
-      <select id="adminSelect" [(ngModel)]="selectedAdminId">
-        <option *ngFor="let admin of adminsWithClubs" [value]="admin.id">
-          {{ admin.username }}
-        </option>
-      </select>
+    <div class="container">
   
-      <label for="clubSelect">Select Club:</label>
-      <select id="clubSelect" [(ngModel)]="selectedClubId">
-        <option *ngFor="let club of clubsWithAdmins" [value]="club.id">
-          {{ club.name }}
-        </option>
-      </select>
-  
-      
+      <h3 class="table-title mt-3">Admins and Clubs</h3>
+      <div class="table-container">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>AdminId</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>ClubName</th>
+            
+              <th>Update Club</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let admin of adminsWithClubs">
+              <td>{{ admin.adminId }}</td>
+              <td>{{ admin.userName }}</td>
+              <td>{{ admin.email }}</td>
+              <td>{{ admin.clubName }}</td>
+              <td>
+                <ng-container *ngIf="!admin.clubName; else rolSelect">
+                  <span class="text-danger">Admin does not have an assigned club!</span>
+                </ng-container>
+                <ng-template #rolSelect>
+                  <div class="role-container">
+                  <select [(ngModel)]="admin.selectedClubId" class="role-dropdown">
+                    <option *ngFor="let club of clubs" [value]="club.clubId | number">{{club.clubName}}</option>
+                  </select>
+                  <button (click)="updateAdminClubs(admin.adminId, admin.selectedClubId ? [admin.selectedClubId] : [])">Update</button>
+                  </div>
+                </ng-template>
+              </td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  
-    <!-- Admins and their assigned Clubs -->
-    <h4>Admins with their Clubs</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Admin ID</th>
-          <th>Admin Name</th>
-          <th>Assigned Clubs</th>
-          <th>Update Clubs</th>
-          <th>Delete Admin</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let admin of adminsWithClubs">
-          <td>{{ admin.id }}</td>
-          <td>{{ admin.username }}</td>
-          <td>
-            <span *ngFor="let club of admin.clubs">{{ club.name }} </span>
-          </td>
-          <td>
-            <select multiple [(ngModel)]="admin.selectedClubs">
-              <option *ngFor="let club of clubsWithAdmins" [value]="club.id">
-                {{ club.name }}
-              </option>
-            </select>
-            <button (click)="updateAdminClubs(admin.id, admin.selectedClubs)">Update</button>
-          </td>
-          <td>
-            <button (click)="deleteAdmin(admin.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <hr>
+    
+    <h3 class="table-title">Admins</h3>
+    <div class="table-container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Admin Id</th>
+            <th>User Id</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Assign Club</th>
+            <th>Delete all clubs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of adminsWithUsers">
+            <td>{{ admin.adminId }}</td>
+            <td>{{ admin.id }}</td>
+            <td>{{ admin.userName }}</td>
+            <td>{{ admin.email }}</td>
+            <td>
+
+              <div class="role-container">
+                <select [(ngModel)]="admin.selectedClubId" class="role-dropdown">
+                  <option *ngFor="let club of clubs" [value]="club.clubId | number">{{club.clubName}}</option>
+                </select>
+                <button (click)="debugClubSelection(admin); assignAdmintoClub(admin.adminId, admin.selectedClubId)">Assign</button>
+              </div>
+
+            </td>
+            <td><button (click)="deleteAdminClub(admin.adminId)" class="btn btn-danger">Delete</button></td>
+            
+           
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <hr>
+    <h3 class="mb-3 mt-3">Add Club</h3>
+    <div class="form-group">
+      <label for="clubName">Club Name</label>
+      <input type="text" class="form-control mt-3 mb-3" id="clubName" [(ngModel)]="newClubName">
+
+      <label for="logoUrl">Logo Url</label>
+      <input type="text" id="logoUrl" class="form-control mt-3 mb-3" [(ngModel)]="newLogoUrl">
+
+      <label for="description">Description</label>
+      <input type="text" id="description" class="form-control mt-3 mb-3" [(ngModel)]="newDescription">
+
+      <button (click)="addClub()" class="btn btn-primary">Create Club</button>
+    </div>
+
+    <hr>
+    <h3 class="mb-3 mt-3 table-title">All Clubs</h3>
+    <div class="table-container">
+      <table class="table table-striped mb-5">
+        <thead>
+          <tr>
+            <th>
+              Club Id
+            </th>
+            <th>
+              Club Name
+            </th>
+            <th>
+              Logo Url
+            </th>
+            <th>
+              Description
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let club of clubs">
+            <td>
+              {{ club.clubId }}
+            </td>
+            <td>
+              {{ club.clubName }}
+            </td>
+            <td>
+              {{ club.logoUrl }}
+            </td>
+            <td>
+              {{ club.description }}
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+
+

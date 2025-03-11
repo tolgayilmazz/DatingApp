@@ -24,6 +24,11 @@ export class AdminsAndClubsComponent implements OnInit {
   users: any[] = [];
   adminsWithClubs: any[] = [];
   clubsWithAdmins: any[] = [];
+  adminsWithUsers: any[] = [];
+  clubs: any[] = [];
+  newClubName: string = '';
+  newLogoUrl: string = '';
+  newDescription: string = '';
   selectedAdminId: number | null = null;
   selectedClubId: number | null = null;
 
@@ -37,7 +42,9 @@ export class AdminsAndClubsComponent implements OnInit {
     this.checkAccess();
     this.loadAdminsWithClubs();
     this.loadClubsWithAdmins();
+    this.loadAdminsWithUsers();
     this.loadUsers();
+    this.loadClubs();
   }
 
   checkAccess(): void{
@@ -62,22 +69,55 @@ export class AdminsAndClubsComponent implements OnInit {
 
   loadAdminsWithClubs(): void{
     this.superAdminService.getAdminsWithClubs().subscribe((data) => {
-      this.adminsWithClubs = data;
+      this.adminsWithClubs = data.map(admin => ({
+        ...admin,
+        selectedClubId: null
+      }));
     });
   }
 
-  assignAdmintoClub(adminId: number, clubId: number): void{
-    if (this.selectedAdminId && this.selectedClubId){
-    this.superAdminService.assignAdminToTheClubs(this.selectedAdminId, this.selectedClubId).subscribe(() => {
+  loadAdminsWithUsers(): void{
+    this.superAdminService.getAdminsWithUsers().subscribe((data) => {
+      this.adminsWithUsers = data.map(admin => ({
+        ...admin,
+        selectedAdminId: null
+      }));
+    });
+  }
+
+  debugClubSelection(admin: any): void {
+    console.log(`Admin ID: ${admin.adminId}, Selected Club ID: ${admin.selectedClubId}`);
+  }
+  
+
+  assignAdmintoClub(adminId: number, clubId: number | null): void{
+    if(!clubId){
+      this.toastr.error('Please select a club');
+      return;
+    }
+
+    clubId = Number(clubId);
+    const assignedClubs = this.clubsWithAdmins.find(a => a.adminId === adminId)?.clubs || [];
+    if(assignedClubs.some((k: {clubId: number}) => k.clubId === clubId)){
+      this.toastr.error('Admin is already assigned to this club');
+      return;
+    }
+
+    this.superAdminService.assignAdminToTheClubs(adminId, clubId).subscribe(() => {
       this.loadAdminsWithClubs();
       this.loadClubsWithAdmins();
       this.toastr.success('Admin assigned to the club successfully');
-    });
+    }
+    );
   }
-  }
+  
 
 
   updateAdminClubs(adminId: number, clubs: number[]): void{
+    if(!clubs || clubs.length === 0){
+      this.toastr.error('Please select at least one club');
+      return;
+    }
     this.superAdminService.updateAdminClubs(adminId, clubs).subscribe(() => {
       this.loadAdminsWithClubs();
       this.loadClubsWithAdmins();
@@ -93,15 +133,50 @@ export class AdminsAndClubsComponent implements OnInit {
     });
   }
 
-  deleteAdmin(adminId: number): void{
-    if(confirm('Are you sure you want to delete this admin?')){
-      this.superAdminService.deleteAdmin(adminId).subscribe(() => {
-        this.loadAdminsWithClubs();
-        this.loadClubsWithAdmins();
-        this.loadUsers();
-        this.toastr.success('Admin deleted successfully');
-      });
-    }
+  
+
+  loadClubs(): void{
+    this.superAdminService.getAllClubs().subscribe((data) => {
+      this.clubs = data;
+    });
   }
 
+  addClub(): void{
+    if(!this.newClubName.trim()){
+      this.toastr.error('Club name is required');
+      return;
+    }
+
+    const clubData = {
+      clubName: this.newClubName,
+      logoUrl: this.newLogoUrl,
+      description: this.newDescription
+    };
+
+    this.superAdminService.addClub(clubData).subscribe((newClub) => {
+      this.clubs.push(newClub);
+      this.toastr.success('Club added successfully');
+      this.newClubName = '';
+      this.newLogoUrl = '';
+      this.newDescription = '';
+    });
+  }
+
+  deleteAdminClub(adminId: number): void{
+    if (!confirm("Are you sure you want to delete this admin's club?")){
+      return;
+    }
+    this.superAdminService.deleteAdminClub(adminId).subscribe(() => {
+      this.adminsWithUsers = this.adminsWithUsers.map(admin => 
+        admin.adminId === adminId ? {...admin, users: []} : admin
+      );
+      this.toastr.success('Admin club deleted successfully');
+      this.loadAdminsWithClubs();
+    },
+    error => {
+      this.toastr.error('Failed to delete admin club');
+      console.error('Failed to delete admin club', error);
+    }
+    );
+  }
 }

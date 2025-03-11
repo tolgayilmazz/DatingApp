@@ -23,7 +23,7 @@
           <td>{{ user.role }}</td>
           <td>
             <ng-container *ngIf="user.role === 'SuperAdmin'; else roleSelect">
-                <span class="superadmin-text">This is a SuperAdmin!!</span>
+                <span class="text-danger">This is a SuperAdmin!!</span>
               </ng-container>
               <ng-template #roleSelect>
                 <div class="role-container">

@@ -22,4 +22,9 @@ public class AppUser{
     public required DateTime RefreshTokenExpiry {get; set;}
 
     public required string Role {get;set;} = "User";
+
+    public ICollection<EventLike> EventLikes { get; set; } = new List<EventLike>();
+    
+    public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
 }
