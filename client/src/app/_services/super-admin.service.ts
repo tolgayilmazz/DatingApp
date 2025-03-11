@@ -71,9 +71,7 @@ export class SuperAdminService {
     return this.http.put(`${this.baseUrl}/admin/update-admin-clubs`, {adminId, clubs});
   }
 
-  deleteAdmin(adminId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/admin/delete-admin/${adminId}`);
-  }
+  
 
   getAllClubs(): Observable<any[]> {
     const token = localStorage.getItem('token');
