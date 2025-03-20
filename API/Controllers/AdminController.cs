@@ -10,19 +10,21 @@ using Microsoft.EntityFrameworkCore;
 using AdminService = API.Services.AdminService;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 
 namespace API.Controllers;
 
 
-public class AdminController: BaseApiController{
+public class AdminController : BaseApiController
+{
     private readonly AdminService _adminService;
 
     public AdminController(AdminService adminService)
     {
         _adminService = adminService;
     }
-   
+
 
     [HttpGet("admins-with-users")]
     [Authorize(Roles = "SuperAdmin")]
@@ -62,12 +64,13 @@ public class AdminController: BaseApiController{
         }
 
         var result = await _adminService.AddAdminToClubs(dto);
-        if (result.Contains("required") || result.Contains("not found")){
+        if (result.Contains("required") || result.Contains("not found"))
+        {
             Console.WriteLine($"Error: {result}");
-            return BadRequest(new {error = result});
+            return BadRequest(new { error = result });
         }
         Console.WriteLine("Success");
-        return Ok(new {success = true , message = "Admin succesfully assigned to the club." });
+        return Ok(new { success = true, message = "Admin succesfully assigned to the club." });
     }
 
 
@@ -78,22 +81,39 @@ public class AdminController: BaseApiController{
         var result = await _adminService.UpdateAdminClubs(dto);
         if (result.Contains("not found"))
             return BadRequest(result);
-        
+
         return Ok(result);
     }
-   
+
 
     [HttpDelete("delete-admin/{adminId}")]
     [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> DeleteAdmin(int adminId)
     {
-        var dto = new DeleteAdminDto{AdminId = adminId};
+        var dto = new DeleteAdminDto { AdminId = adminId };
         var result = await _adminService.DeleteAdmin(dto);
         if (result.Contains("not found"))
-            return NotFound(new {success = false, error = "Admin-club relation not found"});
+            return NotFound(new { success = false, error = "Admin-club relation not found" });
 
-        
 
-        return Ok(new {success = true, message = "Admin-club relation succesfully deleted."});
+
+        return Ok(new { success = true, message = "Admin-club relation succesfully deleted." });
+    }
+
+
+    [HttpGet("my-clubs")]
+    [Authorize(Policy = "RequireAdminRole")]
+    public async Task<IActionResult> GetAdminClubs()
+    {
+        int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+        var adminClubs = await _adminService.GetAdminClubs(userId);
+
+        if (adminClubs.Count == 0)
+        {
+            return Forbid("You are not assigned to any club!");
+        }
+
+        return Ok(adminClubs);
     }
 }

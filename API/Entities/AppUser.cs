@@ -1,30 +1,31 @@
 namespace API.Entities;
 
 
-public class AppUser{
+public class AppUser
+{
 
     public int Id { get; set; }
 
-    public required string UserName { get; set; } 
+    public required string UserName { get; set; }
 
-    public required byte[] PasswordHash {get; set;}
+    public required byte[] PasswordHash { get; set; }
 
-    public required byte[] PasswordSalt {get; set;}
+    public required byte[] PasswordSalt { get; set; }
 
-    public required string Name {get; set;}
+    public required string Name { get; set; }
 
-    public required string Surname {get; set;}
+    public required string Surname { get; set; }
 
-    public required string Email {get; set;}
+    public required string Email { get; set; }
 
-    public required string RefreshToken {get; set;}
+    public required string RefreshToken { get; set; }
 
-    public required DateTime RefreshTokenExpiry {get; set;}
+    public required DateTime RefreshTokenExpiry { get; set; }
 
-    public required string Role {get;set;} = "User";
+    public required string Role { get; set; } = "User";
 
     public ICollection<EventLike> EventLikes { get; set; } = new List<EventLike>();
-    
+
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
 }

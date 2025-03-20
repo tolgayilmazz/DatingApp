@@ -14,6 +14,7 @@ import { superAdminGuard } from './_guards/super-admin.guard';
 import { AdminComponent } from './admin/admin.component';
 import { adminGuard } from './_guards/admin.guard';
 import { AdminsAndClubsComponent } from './super-admin/admins-and-clubs/admins-and-clubs.component';
+import { ClubPageComponent } from './admin/club-page/club-page.component';
 
 export const routes: Routes = [
     {path: '', component: HomeComponent},
@@ -28,9 +29,17 @@ export const routes: Routes = [
             {path: 'messages', component: MessagesComponent},
         ]
     },
+    {
+        path: 'admin',
+        component: AdminComponent,
+        canActivate: [adminGuard],
+        children: [
+            {path: 'club/:id', component: ClubPageComponent},
+        ]
+    },
     {path: 'super-admin', component: SuperAdminComponent, canActivate: [superAdminGuard]},
-    {path: 'admin', component: AdminComponent, canActivate: [adminGuard]},
-    {path: 'errors', component: TestErrorsComponent},
+    
+    {path: 'errors', component: TestErrorsComponent},  
     {path: 'not-found', component: NotFoundComponent},
     {path: 'server-error', component: ServerErrorComponent},
     {path: 'admins-clubs', component: AdminsAndClubsComponent, canActivate: [superAdminGuard]},

@@ -179,4 +179,21 @@ export class AdminsAndClubsComponent implements OnInit {
     }
     );
   }
+
+  deleteClub(clubId: number): void{
+    if (confirm('Are you sure you want to delete this club?')) {
+      this.superAdminService.deleteClub(clubId).subscribe({
+        next: (response) => {
+          console.log('Club deleted:', response);
+          alert('Club deleted successfully.');
+          this.loadClubs(); 
+          this.loadAdminsWithClubs();
+        },
+        error: (error) => {
+          console.error('Error deleting club:', error);
+          alert('Failed to delete club.');
+        }
+      });
+    }
+  }
 }

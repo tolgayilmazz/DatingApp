@@ -1,0 +1,8 @@
+<div class="sidenav">
+    <h3>My Clubs</h3>
+    <ul>
+        <li *ngFor="let club of clubs" (click)="navigateToClub(club.clubId)">
+            <a routerLinkActive="active">{{club.clubName}}</a>
+        </li>
+    </ul>
+</div>

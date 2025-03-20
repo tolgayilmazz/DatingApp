@@ -3,18 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
-public class DataContext(DbContextOptions options) : DbContext(options){
+public class DataContext(DbContextOptions options) : DbContext(options)
+{
 
     public DbSet<AppUser> Users { get; set; }
-    public DbSet<Admin> Admins {get;set;}
-    public DbSet<Club> Clubs {get;set;}
-    public DbSet<AdminClub> AdminClubs {get;set;}
-    public DbSet<Event> Events {get;set;}
-    public DbSet<EventClub> EventClubs {get;set;}
-    public DbSet<EventLike> EventLikes {get;set;}
-    public DbSet<Ticket> Tickets {get;set;}
-    public DbSet<EventTicket> EventTickets {get;set;}
-    
+    public DbSet<Admin> Admins { get; set; }
+    public DbSet<Club> Clubs { get; set; }
+    public DbSet<AdminClub> AdminClubs { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<EventClub> EventClubs { get; set; }
+    public DbSet<EventLike> EventLikes { get; set; }
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<EventTicket> EventTickets { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,7 +32,7 @@ public class DataContext(DbContextOptions options) : DbContext(options){
             .HasOne(ac => ac.Club)
             .WithMany(c => c.AdminClubs)
             .HasForeignKey(ac => ac.ClubId);
-        
+
 
         //Admin-User relation
         modelBuilder.Entity<Admin>()
@@ -40,28 +41,28 @@ public class DataContext(DbContextOptions options) : DbContext(options){
             .HasForeignKey(a => a.UserID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        
+
         //Events-clubs relation
         modelBuilder.Entity<EventClub>()
-            .HasKey(ec => new{ec.EventId, ec.ClubId});
-        
+            .HasKey(ec => new { ec.EventId, ec.ClubId });
+
         modelBuilder.Entity<EventClub>()
             .HasOne(ec => ec.Event)
             .WithMany(e => e.EventClubs)
             .HasForeignKey(ec => ec.EventId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         modelBuilder.Entity<EventClub>()
             .HasOne(ec => ec.Club)
             .WithMany(c => c.EventClubs)
             .HasForeignKey(ec => ec.ClubId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        
+
         //Events-Likes relation
         modelBuilder.Entity<EventLike>()
-            .HasKey(el => new{el.EventId, el.UserId});
-        
+            .HasKey(el => new { el.EventId, el.UserId });
+
         modelBuilder.Entity<EventLike>()
             .HasOne(el => el.Event)
             .WithMany(e => e.EventLikes)
@@ -73,24 +74,24 @@ public class DataContext(DbContextOptions options) : DbContext(options){
             .WithMany(u => u.EventLikes)
             .HasForeignKey(el => el.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
 
         //Events-Tickets relation
         modelBuilder.Entity<EventTicket>()
-            .HasKey(et => new{et.EventId, et.TicketId});
-            
+            .HasKey(et => new { et.EventId, et.TicketId });
+
         modelBuilder.Entity<EventTicket>()
             .HasOne(et => et.Event)
             .WithMany(e => e.EventTickets)
             .HasForeignKey(et => et.EventId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         modelBuilder.Entity<EventTicket>()
             .HasOne(et => et.Ticket)
             .WithMany(t => t.EventTickets)
-            .HasForeignKey(et =>et.TicketId)
+            .HasForeignKey(et => et.TicketId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
 
         //User-Ticket relation
         modelBuilder.Entity<Ticket>()

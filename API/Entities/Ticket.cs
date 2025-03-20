@@ -1,6 +1,7 @@
 namespace API.Entities;
 
-public class Ticket{
+public class Ticket
+{
     public int TicketId { get; set; }
 
     public int UserId { get; set; }

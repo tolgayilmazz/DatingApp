@@ -1,6 +1,7 @@
 namespace API.Entities;
 
-public class EventLike{
+public class EventLike
+{
     public int EventId { get; set; }
     public Event Event { get; set; } = null!;
 

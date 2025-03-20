@@ -25,12 +25,13 @@ public static class IdentityServiceExtensions
         };
     });
 
-    services.AddAuthorization(options => {
-        options.AddPolicy("RequireSuperAdminRole", policy => policy.RequireRole("SuperAdmin"));
-        options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin", "SuperAdmin"));
-        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Admin", "SuperAdmin"));
-    });
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireSuperAdminRole", policy => policy.RequireRole("SuperAdmin"));
+            options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin", "SuperAdmin"));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Admin", "SuperAdmin"));
+        });
 
-    return services;
+        return services;
     }
 }

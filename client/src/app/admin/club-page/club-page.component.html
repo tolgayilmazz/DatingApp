@@ -1,0 +1,35 @@
+<div *ngIf="!clubDetails">
+    <h1>LOADING...</h1>
+</div>
+<div *ngIf="clubDetails">
+    <h2>{{clubDetails.clubName}}</h2>
+    <img src="clubDetails.logoUrl" alt="{{ clubDetails.clubName }}" class="club-banner" />
+    <p>{{clubDetails.description}}</p>
+
+    <hr>
+
+    <div class="form-group">
+        <h3>Create Event for {{ clubId ? 'Club ID: ' + clubId : 'Club' }}</h3>
+      
+        <form (submit)="CreateEvent(); $event.preventDefault()">
+          <label>Event Name:</label>
+          <input type="text" class="form-control mt-3 mb-3" [(ngModel)]="eventData.eventName" name="eventName" required />
+      
+          <label>Event Description:</label>
+          <textarea [(ngModel)]="eventData.eventDescription" class="form-control mt-3 mb-3" name="eventDescription" required></textarea>
+      
+          <label>Event Date:</label>
+          <input type="datetime-local" class="form-control mt-3 mb-3" [(ngModel)]="eventData.eventDate" name="eventDate" required />
+      
+          <label>Photo URL:</label>
+          <input type="text" class="form-control mt-3 mb-3" [(ngModel)]="eventData.photo" name="photo" required />
+      
+          <button type="submit">Create Event</button>
+        </form>
+      </div>
+
+</div>
+
+
+
+  

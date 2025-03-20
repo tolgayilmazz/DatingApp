@@ -9,11 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AdminService = API.Services.AdminService;
 using AddClubDto = API.DTOs.AddClubDto;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace API.Controllers;
 
-public class ClubController : BaseApiController {
+public class ClubController : BaseApiController
+{
     private readonly DataContext _context;
 
     public ClubController(DataContext context)
@@ -22,19 +24,24 @@ public class ClubController : BaseApiController {
     }
 
     [HttpPost("add-club")]
-    public async Task<IActionResult> AddClub([FromBody] AddClubDto dto){
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> AddClub([FromBody] AddClubDto dto)
+    {
 
-        if (dto == null || string.IsNullOrWhiteSpace(dto.ClubName)){
+        if (dto == null || string.IsNullOrWhiteSpace(dto.ClubName))
+        {
             return BadRequest("Club name is required!");
         }
 
         var existingClub = await _context.Clubs.FirstOrDefaultAsync(c => c.ClubName == dto.ClubName);
 
-        if (existingClub != null){
+        if (existingClub != null)
+        {
             return BadRequest("Club already exists!");
         }
 
-        var newClub = new Club{
+        var newClub = new Club
+        {
             ClubName = dto.ClubName,
             LogoUrl = dto.LogoUrl,
             Description = dto.Description
@@ -49,9 +56,45 @@ public class ClubController : BaseApiController {
 
     [HttpGet("get-clubs")]
 
-    public async Task<ActionResult<List<Club>>> GetClubs(){
+    public async Task<ActionResult<List<Club>>> GetClubs()
+    {
         var clubs = await _context.Clubs.ToListAsync();
         return Ok(clubs);
-    } 
+    }
+
+
+    [HttpDelete("delete-club/{clubId}")]
+    [Authorize(Roles = "SuperAdmin")]
+
+    public async Task<IActionResult> DeleteClubs(int clubId)
+    {
+        var club = await _context.Clubs.FindAsync(clubId);
+
+        if (club == null)
+        {
+            return NotFound("Club not found.");
+        }
+
+        var relatedAdminClubs = await _context.AdminClubs.Where(ac => ac.ClubId == clubId).ToListAsync();
+
+        _context.AdminClubs.RemoveRange(relatedAdminClubs);
+
+        //var relatedEventClubs = await _context.EventClubs.Where(ec => ec.ClubId == clubId).ToListAsync();
+
+        //_context.EventClubs.RemoveRange(relatedEventClubs);
+
+
+        _context.Clubs.Remove(club);
+
+        await _context.SaveChangesAsync();
+
+
+
+        return Ok(new { success = true, message = $"Club '{club.ClubName}' deleted successfully." });
+
+
+    }
+
+
 
 }

@@ -118,6 +118,9 @@
             <th>
               Description
             </th>
+            <th>
+              Delete Club
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -133,6 +136,9 @@
             </td>
             <td>
               {{ club.description }}
+            </td>
+            <td>
+              <button class="btn btn-danger" (click)="deleteClub(club.clubId)">Delete</button>
             </td>
           </tr>
         </tbody>

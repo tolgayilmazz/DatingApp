@@ -2,26 +2,27 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API;
 
-public class RegisterDto{
+public class RegisterDto
+{
     [Required]
 
-    public required string Username {get; set;}
+    public required string Username { get; set; }
 
     [Required]
-    public required string Password {get; set;}
-
-    [Required]
-
-    public required string Name {get; set;}
+    public required string Password { get; set; }
 
     [Required]
 
-    public required string Surname {get; set;}
+    public required string Name { get; set; }
+
+    [Required]
+
+    public required string Surname { get; set; }
 
     [Required]
     [EmailAddress]
-    public required string Email {get; set;}
+    public required string Email { get; set; }
 
-    public string? Role {get;set;}
+    public string? Role { get; set; }
 
 }

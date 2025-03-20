@@ -21,10 +21,10 @@ public static class ApplicationServiceExtensions
         {
             options.AddPolicy("AllowAngularApp", builder =>
             {
-                builder.WithOrigins("http://localhost:4200", "https://localhost:4200") 
+                builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
                        .AllowAnyHeader()
                        .AllowAnyMethod()
-                       .AllowCredentials(); 
+                       .AllowCredentials();
             });
         });
         services.AddScoped<ITokenService, TokenService>();

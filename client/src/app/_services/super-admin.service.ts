@@ -80,7 +80,9 @@ export class SuperAdminService {
   }
 
   addClub(clubData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/club/add-club`, clubData);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post<any>(`${this.baseUrl}/club/add-club`, clubData, {headers});
   }
 
   getAdminsWithUsers(): Observable<any[]> {
@@ -107,6 +109,13 @@ export class SuperAdminService {
     }));
 
 
+  }
+
+  deleteClub(clubId : number): Observable<any>{
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.delete(`${this.baseUrl}/club/delete-club/${clubId}`, {headers});
   }
   
 }

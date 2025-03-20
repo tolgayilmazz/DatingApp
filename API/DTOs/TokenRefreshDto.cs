@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 namespace API;
 
-public class TokenRefreshDto{
+public class TokenRefreshDto
+{
     [Required]
 
-    public required string RefreshToken {get; set;}
+    public required string RefreshToken { get; set; }
 }
