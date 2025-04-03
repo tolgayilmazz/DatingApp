@@ -1,0 +1,81 @@
+
+    
+    <button (click)="goBackToAdmin()" class="btn btn-outline-light mb-5">Go back to admin</button>
+  
+    <h2 class="section-title mb-3 mt-3">Ticket Purchase Requests</h2>
+
+    <div class="filter-bar">
+        <button (click)="filter = 'pending'" [class.active]="filter === 'pending'">Pending</button>
+        <button (click)="filter = 'approved'" [class.active]="filter === 'approved'">Approved</button>
+        <button (click)="filter = 'rejected'" [class.active]="filter === 'rejected'">Rejected</button>
+    </div>
+      
+    <h3 *ngIf="filter === 'pending'" class="mb-3 mt-3">Pending Tickets</h3>
+    <h3 *ngIf="filter === 'approved'" class="mb-3 mt-3">Approved Tickets</h3>
+    <h3 *ngIf="filter === 'rejected'" class="mb-3 mt-3">Rejected Tickets</h3>
+  
+    <div *ngIf="tickets.length === 0" class="no-tickets">No ticket requests yet.</div>
+  
+    
+
+
+
+  <div class="table-container">
+    <table class="table table-striped mb-5">
+        <thead>
+          <tr>
+            <th>
+              Receipt Photo
+            </th>
+            <th>
+              Username
+            </th>
+            <th>
+              Email
+            </th>
+            <th>
+              Event Name
+            </th>
+            <th>
+                Event Date
+            </th>
+            <th>
+                Manage Status
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ticket of filteredTickets">
+            <td>
+                <img [src]="ticket.receiptPhoto" alt="Receipt" class="receipt-image" (click)="showPreview(ticket.receiptPhoto)"/>
+            </td>
+            <td>
+                {{ ticket.userName }}
+            </td>
+            <td>
+                {{ ticket.userEmail }}
+            </td>
+            <td>
+                {{ ticket.eventName }}
+            </td>
+            <td>
+                {{ ticket.eventDate | date:'fullDate' }}
+            </td>
+            <td>
+                <button *ngIf="filter === 'pending'" (click)="approveTickets(ticket.ticketId)" class="btn btn-success">Approve</button>
+                <button *ngIf="filter === 'pending'" (click)="rejectTickets(ticket.ticketId)" class="btn btn-danger">Reject</button>
+                <button *ngIf="filter !== 'pending'" (click)="resetTicket(ticket.ticketId)" class="btn btn-outline-light">Reset</button>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+  </div>
+
+  <div class="image-overlay" *ngIf="previewImage">
+    <div class="image-modal">
+      <button class="close-btn" (click)="closePreview()">✕</button>
+      <img [src]="previewImage" alt="Zoomed Receipt" />
+    </div>
+  </div>
+  

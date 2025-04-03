@@ -21,7 +21,8 @@ public static class IdentityServiceExtensions
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
-            RoleClaimType = ClaimTypes.Role
+            RoleClaimType = ClaimTypes.Role,
+            ClockSkew = TimeSpan.Zero
         };
     });
 

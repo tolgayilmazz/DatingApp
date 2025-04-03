@@ -1,10 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { MemberListComponent } from './members/member-list/member-list.component';
-import { MemberDetailComponent } from './members/member-detail/member-detail.component';
 import { EventsComponent } from './events/events.component';
-import { HotEventsComponent } from './events/hot-events/hot-events.component';
-import { MessagesComponent } from './messages/messages.component';
 import { authGuard } from './_guards/auth.guard';
 import { TestErrorsComponent } from './errors/test-errors/test-errors.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
@@ -15,6 +11,9 @@ import { AdminComponent } from './admin/admin.component';
 import { adminGuard } from './_guards/admin.guard';
 import { AdminsAndClubsComponent } from './super-admin/admins-and-clubs/admins-and-clubs.component';
 import { ClubPageComponent } from './admin/club-page/club-page.component';
+import { LearnMoreComponent } from './events/learn-more/learn-more.component';
+import { MyTicketsComponent } from './my-tickets/my-tickets.component';
+import { AdminTicketListComponent } from './admin/admin-ticket-list/admin-ticket-list.component';
 
 export const routes: Routes = [
     {path: '', component: HomeComponent},
@@ -23,10 +22,11 @@ export const routes: Routes = [
         runGuardsAndResolvers: 'always',
         canActivate: [authGuard],
         children: [
-            {path: 'members', component: MemberListComponent},
-            {path: 'members/details', component: MemberDetailComponent},
-            {path: 'events', component: EventsComponent, canActivate: [authGuard]},
-            {path: 'messages', component: MessagesComponent},
+            
+            
+            {path: 'events', component: EventsComponent},
+            { path: 'events/:id/learn-more', component: LearnMoreComponent },
+            {path: 'my-tickets', component: MyTicketsComponent},
         ]
     },
     {
@@ -37,6 +37,13 @@ export const routes: Routes = [
             {path: 'club/:id', component: ClubPageComponent},
         ]
     },
+    {
+        path: 'admin/event/:eventId/tickets',
+        component: AdminTicketListComponent,
+        canActivate: [adminGuard] 
+    },
+      
+    
     {path: 'super-admin', component: SuperAdminComponent, canActivate: [superAdminGuard]},
     
     {path: 'errors', component: TestErrorsComponent},  

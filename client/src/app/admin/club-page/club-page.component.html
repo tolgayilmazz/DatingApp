@@ -3,15 +3,15 @@
 </div>
 <div *ngIf="clubDetails">
     <h2>{{clubDetails.clubName}}</h2>
-    <img src="clubDetails.logoUrl" alt="{{ clubDetails.clubName }}" class="club-banner" />
+    <img [src]="clubDetails.logoUrl" alt="{{ clubDetails.clubName }}" class="club-banner" />
     <p>{{clubDetails.description}}</p>
 
     <hr>
 
     <div class="form-group">
-        <h3>Create Event for {{ clubId ? 'Club ID: ' + clubId : 'Club' }}</h3>
+        <h3>Create or Update Event for {{ clubId ? 'Club ID: ' + clubId : 'Club' }}</h3>
       
-        <form (submit)="CreateEvent(); $event.preventDefault()">
+        <form (ngSubmit)="isUpdateMode ? updateEvent() : CreateEvent()" #eventForm="ngForm">
           <label>Event Name:</label>
           <input type="text" class="form-control mt-3 mb-3" [(ngModel)]="eventData.eventName" name="eventName" required />
       
@@ -21,11 +21,63 @@
           <label>Event Date:</label>
           <input type="datetime-local" class="form-control mt-3 mb-3" [(ngModel)]="eventData.eventDate" name="eventDate" required />
       
-          <label>Photo URL:</label>
-          <input type="text" class="form-control mt-3 mb-3" [(ngModel)]="eventData.photo" name="photo" required />
+          <label>Event Image:</label>
+          <input #fileInput type="file" accept="image/jpeg" class="form-control mt-3 mb-3" (change)="onImageSelected($event, fileInput)" required />
+          <img *ngIf="eventData.photo" [src]="eventData.photo" class="img-fluid mb-3" style="max-height: 200px;" />
       
-          <button type="submit">Create Event</button>
+          <button *ngIf="!isUpdateMode" type="submit">Create Event</button>
+          <button *ngIf="isUpdateMode" type="submit" class="mx-3">Update Event</button>
         </form>
+      </div>
+      <hr>
+      <div class="table-container">
+        <table class="table table-striped mb-5">
+            <thead>
+              <tr>
+                <th>
+                  Event Name
+                </th>
+                <th>
+                  Event Description
+                </th>
+                <th>
+                  Event Date
+                </th>
+                <th>
+                  Delete Club
+                </th>
+                <th>
+                    Update Event
+                </th>
+                <th>
+                  See Ticket List
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let event of events">
+                <td>
+                  {{ event.eventName }}
+                </td>
+                <td>
+                  {{ event.eventDescription }}
+                </td>
+                <td>
+                  {{ event.eventDate }}
+                </td>
+                <td>
+                  <button class="btn btn-danger" (click)="deleteEvent(event.eventId)">Delete</button>
+                </td>
+                <td>
+                    <button class="btn btn-primary" (click)="editEvent(event)">Update</button>
+                </td>
+                <td>
+                  <button class="btn btn-primary" (click)="goToTicketList(event.eventId)">See</button>
+                </td>
+              </tr>
+            </tbody>
+    
+          </table>
       </div>
 
 </div>

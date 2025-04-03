@@ -1,0 +1,34 @@
+<div class="learn-more-wrapper" *ngIf="eventDetails">
+
+    
+    <div class="back-button">
+      <button (click)="goBackToEvents()" class="btn btn-outline-light">← Back to Events</button>
+    </div>
+  
+    
+    <div class="event-detail-content">
+      <img [src]="eventDetails.photo" alt="Event Image" class="event-detail-image" />
+      <h2>{{ eventDetails.eventName }}</h2>
+      <p>{{ eventDetails.eventDescription }}</p>
+      <p><strong>Date:</strong> {{ eventDetails.eventDate | date:'full' }}</p>
+      <p *ngIf="eventDetails.clubs?.length"><strong>Club:</strong> {{ eventDetails.clubs[0].clubName }}</p>
+    </div>
+  
+</div>
+
+<hr>
+
+<div class="ticket-upload-box">
+    <label for="receipt">Upload Payment Receipt (JPEG only):</label>
+    <input type="file" (change)="onFileSelected($event)" accept="image/jpeg">
+    <p class="text-danger" *ngIf="uploadError">{{ uploadError }}</p>
+  
+    <button (click)="submitTicket()" [disabled]="isSubmitting" class="btn">
+      {{ isSubmitting ? 'Submitting...' : 'Send Ticket Request' }}
+    </button>
+  </div>
+  
+
+  
+  
+  

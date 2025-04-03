@@ -26,7 +26,7 @@ public class EventsController : BaseApiController
     }
 
     [HttpPost("create-events")]
-    [Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto)
     {
         try{
@@ -91,7 +91,7 @@ public class EventsController : BaseApiController
     }
 
     [HttpGet("get-events")]
-    [Authorize(Policy = "RequireAdminRole")]
+
     public async Task<IActionResult> GetEvents(){
         var events = await _context.Events
             .Include(e => e.EventClubs)
@@ -122,15 +122,30 @@ public class EventsController : BaseApiController
     }
 
     [HttpDelete("delete-events/{id}")]
-    [Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteEvents(int id){
         var eventToDelete = await _context.Events
             .Include(e => e.EventClubs)
+            .Include(e => e.EventTickets)
             .FirstOrDefaultAsync(e => e.EventId == id);
         if(eventToDelete == null) return NotFound("Event Not Found!");
 
+        var relatedTicketIds = eventToDelete.EventTickets.Select(et => et.TicketId).ToList();
 
+        var relatedTickets = await _context.Tickets
+            .Where(t => relatedTicketIds.Contains(t.TicketId))
+            .Include(t => t.EventTickets)
+            .ToListAsync();
+        
+        _context.EventTickets.RemoveRange(eventToDelete.EventTickets);
 
+        foreach (var ticket in relatedTickets)
+        {
+            if (ticket.EventTickets.Count == 1) 
+            {
+                _context.Tickets.Remove(ticket);
+            }
+        }
 
         _context.EventClubs.RemoveRange(eventToDelete.EventClubs);
 
@@ -143,7 +158,7 @@ public class EventsController : BaseApiController
 
 
     [HttpGet("get-club-events/{clubId}")]
-    [Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetClubEvents(int clubId){
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
@@ -181,6 +196,44 @@ public class EventsController : BaseApiController
         return Ok(response);
     }
     
+    [HttpPut("update-event/{eventId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateEvent(int eventId, [FromBody] EventDto UpdatedEvent){
+
+        var existingEvent = await _context.Events.FindAsync(eventId);
+
+        if(existingEvent == null) return NotFound("Event could not be found!");
+
+        existingEvent.EventName = UpdatedEvent.EventName;
+        existingEvent.EventDate = UpdatedEvent.EventDate;
+        existingEvent.EventDescription = UpdatedEvent.EventDescription;
+        existingEvent.Photo = UpdatedEvent.Photo;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Event updated successfully!" });
+    }
+
+    [HttpGet("get-an-event/{eventId}")]
+    public async Task<IActionResult> GetAnEvent(int eventId){
+        var events = await _context.Events
+            .Where(e => e.EventId == eventId) 
+            .Select(e => new
+            {
+                e.EventId,
+                e.Photo,
+                e.EventName,
+                e.EventDescription,
+                e.EventDate
+            })
+            .FirstOrDefaultAsync();
+
+        
+        if(events == null) return NotFound("Event Not Found!!");
+        
+
+        return Ok(events);
+    }
 
 
 

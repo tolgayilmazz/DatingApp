@@ -5,6 +5,7 @@ import { OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterLinkActive } from '@angular/router';
+import { HttpHeaders } from '@angular/common/http';
 
 interface Club{
   clubId: number;
@@ -27,7 +28,11 @@ export class SidebarComponent implements OnInit{
   constructor(private http: HttpClient, private router: Router){}
 
   ngOnInit(): void{
-    this.http.get<Club[]>(`${this.baseUrl}/admin/my-clubs`).subscribe(
+
+    const user = JSON.parse(localStorage.getItem('user')!);
+    const token = user?.token;
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    this.http.get<Club[]>(`${this.baseUrl}/admin/my-clubs`, {headers}).subscribe(
       (data) => {
         this.clubs = data;
       },

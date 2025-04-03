@@ -1,27 +1,36 @@
-import { Component } from '@angular/core';
-import { HotEventsComponent } from './hot-events/hot-events.component';
+import { Component, inject } from '@angular/core';
+import { EventService } from '../_services/event.service';
+import { OnInit } from '@angular/core';
+import { NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [HotEventsComponent],
+  imports: [ CommonModule, RouterModule],
   templateUrl: './events.component.html',
   styleUrl: './events.component.css'
 })
-export class EventsComponent {
-  events = [
-    { name: 'Concert A', date: '2025-03-10', location: 'Venue 1', price: 50, likes: 80, image: 'concert_a.jpg' },
-    { name: 'Seminar B', date: '2025-04-15', location: 'Venue 2', price: 20, likes: 120, image: 'seminar_b.jpg' }
-  ];
-  hotEvents = this.events.filter(event => event.likes > 100);
+export class EventsComponent implements OnInit{
 
-  buyTicket(event: any) {
-    console.log('Buying ticket for', event.name);
+  events: any[] = [];
+  constructor(private service: EventService){}
+
+  ngOnInit(): void {
+    this.loadEvents();
   }
 
-  likeEvent(event: any) {
-    event.likes++;
-    this.hotEvents = this.events.filter(e => e.likes > 100);
+  loadEvents(): void{
+    this.service.getEvents().subscribe({
+      next: (data) => {
+        this.events = data;
+      },
+      error: (err) => {
+        console.error('Error loading events', err);
+      }
+    });
   }
 
 }

@@ -102,7 +102,8 @@ public class AdminController : BaseApiController
 
 
     [HttpGet("my-clubs")]
-    [Authorize(Policy = "RequireAdminRole")]
+    [Authorize(Roles = "Admin")]
+    
     public async Task<IActionResult> GetAdminClubs()
     {
         int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");

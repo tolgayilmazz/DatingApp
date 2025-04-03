@@ -4,7 +4,7 @@
   
   .admin-content {
     flex: 1;
-    margin-left: 250px; /* because the sidebar is 250px wide */
+    margin-left: 125px; /* because the sidebar is 250px wide */
     padding: 20px;
   }
   

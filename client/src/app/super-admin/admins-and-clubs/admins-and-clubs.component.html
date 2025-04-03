@@ -91,8 +91,9 @@
       <label for="clubName">Club Name</label>
       <input type="text" class="form-control mt-3 mb-3" id="clubName" [(ngModel)]="newClubName">
 
-      <label for="logoUrl">Logo Url</label>
-      <input type="text" id="logoUrl" class="form-control mt-3 mb-3" [(ngModel)]="newLogoUrl">
+      <label for="logo">Club Logo</label>
+      <input type="file" id="logo" accept="image/jpeg" class="form-control mt-3 mb-3" (change)="onLogoSelected($event)">
+      <img *ngIf="newLogoUrl" [src]="newLogoUrl" class="img-fluid mb-3" style="max-height: 150px;" />
 
       <label for="description">Description</label>
       <input type="text" id="description" class="form-control mt-3 mb-3" [(ngModel)]="newDescription">
@@ -113,9 +114,6 @@
               Club Name
             </th>
             <th>
-              Logo Url
-            </th>
-            <th>
               Description
             </th>
             <th>
@@ -130,9 +128,6 @@
             </td>
             <td>
               {{ club.clubName }}
-            </td>
-            <td>
-              {{ club.logoUrl }}
             </td>
             <td>
               {{ club.description }}

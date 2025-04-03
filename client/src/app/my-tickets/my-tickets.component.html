@@ -1,0 +1,22 @@
+<div class="my-tickets-container">
+    <h2>My Tickets</h2>
+  
+    <div class="ticket-card" *ngFor="let ticket of myTickets" [class.pending]="!ticket.approved && !ticket.rejected">
+      <img [src]="ticket.receiptPhoto" alt="Receipt" />
+      
+      <div class="ticket-info">
+        <h3>{{ ticket.eventName }}</h3>
+        <p><strong>Date:</strong> {{ ticket.eventDate | date: 'fullDate' }}</p>
+        <p>Status: 
+            <span [ngClass]="{
+                'approved': ticket.approved,
+                'rejected-label': ticket.rejected,
+                'pending-label': !ticket.approved && !ticket.rejected
+            }">
+            {{ ticket.approved ? 'Approved' : (ticket.rejected ? 'Rejected' : 'Pending') }}
+            </span>
+        </p>
+      </div>
+    </div>
+  </div>
+  

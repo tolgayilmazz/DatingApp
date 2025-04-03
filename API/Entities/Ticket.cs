@@ -9,6 +9,7 @@ public class Ticket
 
     public required string ReceiptPhoto { get; set; }
     public bool Approved { get; set; } = false;
+    public bool Rejected { get; set; } = false;
 
     public ICollection<EventTicket> EventTickets { get; set; } = new List<EventTicket>();
 }

@@ -79,9 +79,42 @@ public class ClubController : BaseApiController
 
         _context.AdminClubs.RemoveRange(relatedAdminClubs);
 
-        //var relatedEventClubs = await _context.EventClubs.Where(ec => ec.ClubId == clubId).ToListAsync();
+        var eventIdsToDelete = await _context.EventClubs
+            .Where(ec => ec.ClubId == clubId)
+            .Select(ec => ec.EventId)
+            .Distinct()
+            .ToListAsync();
 
-        //_context.EventClubs.RemoveRange(relatedEventClubs);
+        var eventTicketsToDelete = await _context.EventTickets
+            .Where(et => eventIdsToDelete.Contains(et.EventId))
+            .ToListAsync();
+
+        var ticketIds = eventTicketsToDelete.Select(et => et.TicketId).Distinct().ToList();
+
+        var ticketsToCheck = await _context.Tickets
+            .Where(t => ticketIds.Contains(t.TicketId))
+            .Include(t => t.EventTickets)
+            .ToListAsync();
+
+        _context.EventTickets.RemoveRange(eventTicketsToDelete);
+
+        foreach (var ticket in ticketsToCheck)
+        {
+            if (ticket.EventTickets.Count == 1) 
+            {
+                _context.Tickets.Remove(ticket);
+            }
+        }
+        
+        var eventsToDelete = await _context.Events
+            .Where(e => eventIdsToDelete.Contains(e.EventId))
+            .ToListAsync();
+
+        _context.Events.RemoveRange(eventsToDelete);
+
+        var relatedEventClubs = await _context.EventClubs.Where(ec => ec.ClubId == clubId).ToListAsync();
+
+        _context.EventClubs.RemoveRange(relatedEventClubs);
 
 
         _context.Clubs.Remove(club);

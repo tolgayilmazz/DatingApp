@@ -8,11 +8,9 @@
       <li class="nav-item">
         <a routerLink="/events" class="nav-link" routerLinkActive="active">Events</a>
       </li>
+     
       <li class="nav-item">
-        <a routerLink="/members" class="nav-link " routerLinkActive="active">Lists</a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="/messages" class="nav-link " routerLinkActive="active">Messages</a>
+        <a routerLink="/my-tickets" class="nav-link " routerLinkActive="active">My Tickets</a>
       </li>
       <li class="nav-item">
         <a class="nav-link " (click)="logout()">Logout</a>
@@ -20,6 +18,9 @@
       @if(accountService.isSuperAdmin){
         <li class="nav-item">
           <a class="nav-link " routerLink="/super-admin" routerLinkActive="active">Super Admin</a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/errors" routerLinkActive="active" class="nav-link">Errors</a>
         </li>
       }
       @if(accountService.isAdmin || accountService.isSuperAdmin){
@@ -29,9 +30,7 @@
       }  
 
       }
-      <li class="nav-item">
-        <a routerLink="/errors" routerLinkActive="active" class="nav-link">Errors</a>
-      </li>
+      
     </ul>
 
     @if(accountService.currentUser()){

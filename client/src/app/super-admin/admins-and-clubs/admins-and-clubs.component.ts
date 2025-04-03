@@ -196,4 +196,33 @@ export class AdminsAndClubsComponent implements OnInit {
       });
     }
   }
+
+  onLogoSelected(event: any): void {
+    const file: File = event.target.files[0];
+  
+    if (!file) return;
+  
+    
+    if (file.type !== 'image/jpeg') {
+      alert('Only JPEG files are allowed.');
+      event.target.value = '';
+      return;
+    }
+  
+    
+    const maxSizeInMB = 5;
+    if (file.size > maxSizeInMB * 1024 * 1024) {
+      alert('Image size should not exceed 5MB.');
+      event.target.value = '';
+      return;
+    }
+  
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.newLogoUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+    
 }
